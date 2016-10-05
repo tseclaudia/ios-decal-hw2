@@ -32,7 +32,30 @@ extension Double {
             3. Display an integer when the result is an integer of allowable size.
             Optional: Use scientific notation for any values that exceed the character max.
         */
-        return "\(self)"
+        
+
+        //      Remove leading zeros
+        var result = String(self)
+        while (String(result.characters.prefix(1)) == "0" &&
+            result[result.index(result.startIndex, offsetBy: 1)] != "." &&
+            result != "0") {
+                result = String(result.characters.dropFirst())
+        }
+        //      Remove trailing zeros
+        while (result[result.index(before: result.endIndex)] == "0" &&
+            result[result.index(result.startIndex, offsetBy: result.characters.count-2)] != ".") {
+                result = String(result.characters.dropLast())
+        }
+        if (String(result.characters.suffix(2)) == ".0") {
+            result = String(result.characters.dropLast(2))
+        }
+        
+        //      Returns a max of 7 characters
+        if (result.characters.count > 7) {
+            result = String(result.characters.prefix(7))
+        }
+        
+        return result
     }
 }
 

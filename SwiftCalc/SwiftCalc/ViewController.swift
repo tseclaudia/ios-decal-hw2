@@ -21,8 +21,9 @@ class ViewController: UIViewController {
     
     // TODO: This looks like a good place to add some data structures.
     //       One data structure is initialized below for reference.
-    var someDataStructure: [String] = [""]
-    
+    var isTypingNumber = false
+    var firstNumber = ""
+    var operation = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,54 +44,127 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    // TODO: A method to update your data structure(s) would be nice.
-    //       Modify this one or create your own.
-    func updateSomeDataStructure(_ content: String) {
-        print("Update me like one of those PCs")
-    }
     
     // TODO: Ensure that resultLabel gets updated.
     //       Modify this one or create your own.
     func updateResultLabel(_ content: String) {
-        print("Update me like one of those PCs")
+        let doubleContent = Double(content)
+        resultLabel.text = doubleContent?.prettyOutput
     }
     
     
     // TODO: A calculate method with no parameters, scary!
     //       Modify this one or create your own.
     func calculate() -> String {
-        return "0"
+        return String(format: "%f", calculate(a: firstNumber, b: resultLabel.text!, operation: operation))
     }
     
-    // TODO: A simple calculate method for integers.
-    //       Modify this one or create your own.
-    func intCalculate(a: Int, b:Int, operation: String) -> Int {
-        print("Calculation requested for \(a) \(operation) \(b)")
-        return 0
-    }
     
     // TODO: A general calculate method for doubles
     //       Modify this one or create your own.
     func calculate(a: String, b:String, operation: String) -> Double {
-        print("Calculation requested for \(a) \(operation) \(b)")
-        return 0.0
+        let aDouble = Double(a)
+        let bDouble = Double(b)
+        let op : String = operation
+        switch op {
+        case "+":
+            return aDouble! + bDouble!
+        case "-":
+            return aDouble! - bDouble!
+        case "/":
+            return aDouble!/bDouble!
+        case "*":
+            return aDouble! * bDouble!
+        default:
+            return 0.0
+        }
     }
     
     // REQUIRED: The responder to a number button being pressed.
     func numberPressed(_ sender: CustomButton) {
         guard Int(sender.content) != nil else { return }
-        print("The number \(sender.content) was pressed")
         // Fill me in!
+        if (isTypingNumber) {
+            updateResultLabel(resultLabel.text! + sender.content)
+        } else {
+            updateResultLabel(sender.content)
+            isTypingNumber = true
+        }
     }
     
     // REQUIRED: The responder to an operator button being pressed.
     func operatorPressed(_ sender: CustomButton) {
         // Fill me in!
+        isTypingNumber = false
+        if (sender.content == "=") {
+            updateResultLabel(calculate())
+        }
+        
+        else if (sender.content == "C") {
+            updateResultLabel("0")
+        }
+        
+        else if (sender.content == "+/-") {
+//          make the input positive
+            if (String(sender.content.characters.prefix(1)) == "-") {
+                updateResultLabel(String(sender.content.characters.dropFirst()))
+            } else {
+//              make the input negative
+                updateResultLabel("-" + resultLabel.text!)
+            }
+        }
+        
+        else {
+            firstNumber = resultLabel.text!
+            if (!operation.isEmpty) {
+                operation = sender.content
+                updateResultLabel(calculate())
+            } else {
+                operation = sender.content
+            }
+        }
+
     }
     
     // REQUIRED: The responder to a number or operator button being pressed.
     func buttonPressed(_ sender: CustomButton) {
        // Fill me in!
+        
+        if (sender.content == "1" ||
+            sender.content == "2" ||
+            sender.content == "3" ||
+            sender.content == "4" ||
+            sender.content == "5" ||
+            sender.content == "6" ||
+            sender.content == "7" ||
+            sender.content == "8" ||
+            sender.content == "9") {
+            return numberPressed(sender)
+        }
+        
+        else if (sender.content == ".") {
+            if (resultLabel.text?.range(of:".") == nil) {
+                updateResultLabel(resultLabel.text! + sender.content)
+            }
+        }
+        
+        else if (sender.content == "0") {
+            if (resultLabel.text != "0") {
+                if (isTypingNumber) {
+                updateResultLabel(resultLabel.text! + sender.content)
+                }
+            }
+        }
+        
+        else if (sender.content == "/" ||
+            sender.content == "*" ||
+            sender.content == "-" ||
+            sender.content == "+" ||
+            sender.content == "=" ||
+            sender.content == "C" ||
+            sender.content == "+/-") {
+            return operatorPressed(sender)
+        }
     }
     
     // IMPORTANT: Do NOT change any of the code below.
