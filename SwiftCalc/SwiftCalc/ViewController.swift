@@ -22,8 +22,7 @@ class ViewController: UIViewController {
     // TODO: This looks like a good place to add some data structures.
     //       One data structure is initialized below for reference.
     var isTypingNumber = false
-//  firstNumber should instead be a list of numbers that you add together?
-    var firstNumber = ""
+    var operandsList: [String] = []
     var operation = ""
 
     override func viewDidLoad() {
@@ -58,10 +57,11 @@ class ViewController: UIViewController {
         } else {
             resultLabel.text = content
         }
-//      this part breaks the decimal stuff? idk. bug here
-        if (!isTypingNumber) {
-            resultLabel.text = Double(resultLabel.text!)?.prettyOutput
+        
+        if (resultLabel.text!.characters.count > 7) {
+            resultLabel.text! = String(resultLabel.text!.characters.prefix(7))
         }
+
         isTypingNumber = true
     }
     
@@ -69,7 +69,17 @@ class ViewController: UIViewController {
     // TODO: A calculate method with no parameters, scary!
     //       Modify this one or create your own.
     func calculate() -> String {
-        return String(format: "%f", calculate(a: firstNumber, b: resultLabel.text!, operation: operation))
+        var total = String(format: "%f", calculate(a: operandsList[0], b: operandsList[2], operation: operandsList[1]))
+        total = Double(total)!.prettyOutput
+        if (operandsList.last == "=") {
+            operandsList.removeAll()
+        } else {
+            for _ in 0..<3 {
+                operandsList.removeFirst()
+            }
+            operandsList.insert(total, at: 0)
+        }
+        return total
     }
     
     
@@ -104,28 +114,40 @@ class ViewController: UIViewController {
     func operatorPressed(_ sender: CustomButton) {
         // Fill me in!
         isTypingNumber = false
-        if (sender.content == "=") {
-            updateResultLabel(calculate())
-        }
         
-        else if (sender.content == "C") {
+        if (sender.content == "C") {
             updateResultLabel("0")
         }
         
         else if (sender.content == "+/-") {
-            updateResultLabel(String(Double(resultLabel.text!)! * -1))
+//            updateResultLabel(String(Double(resultLabel.text!)! * -1))
+            if (resultLabel.text!.range(of: "-") != nil) {
+                updateResultLabel(String(resultLabel.text!.characters.dropFirst()))
+            } else {
+                updateResultLabel("-" + resultLabel.text!)
+            }
+            
         }
         
         else {
-//          assigning firstNumber to resultLabel.text is complicated. too many cases to account for to make sure firstNumber is being assigned to the correct number. so make a list of numbers/operations instead
-            firstNumber = resultLabel.text!
-            if (!operation.isEmpty) {
-                operation = sender.content
+            operandsList.append(resultLabel.text!)
+            operation = sender.content
+            if (operandsList.last == "+" ||
+                operandsList.last == "-" ||
+                operandsList.last == "/" ||
+                operandsList.last == "*" ||
+                operandsList.last == "=") {
+                operandsList.removeLast()
+            }
+            operandsList.append(operation)
+            print("operandsListOriginal: " + operandsList.joined(separator: ", "))
+            print("length of list: " + String(operandsList.count))
+            if (operandsList.count == 4) {
                 updateResultLabel(calculate())
-            } else {
-                operation = sender.content
             }
         }
+        
+        print("operandsListAfterCalc: " + operandsList.joined(separator: ", "))
     }
     
     // REQUIRED: The responder to a number or operator button being pressed.
