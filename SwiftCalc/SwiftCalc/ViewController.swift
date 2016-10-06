@@ -22,6 +22,7 @@ class ViewController: UIViewController {
     // TODO: This looks like a good place to add some data structures.
     //       One data structure is initialized below for reference.
     var isTypingNumber = false
+//  firstNumber should instead be a list of numbers that you add together?
     var firstNumber = ""
     var operation = ""
 
@@ -48,8 +49,20 @@ class ViewController: UIViewController {
     // TODO: Ensure that resultLabel gets updated.
     //       Modify this one or create your own.
     func updateResultLabel(_ content: String) {
-        let doubleContent = Double(content)
-        resultLabel.text = doubleContent?.prettyOutput
+//        if (content == "." && resultLabel.text?.range(of:".") == nil) {
+//            resultLabel.text = resultLabel.text! + content
+//        }
+//
+        if (isTypingNumber) {
+            resultLabel.text = resultLabel.text! + content
+        } else {
+            resultLabel.text = content
+        }
+//      this part breaks the decimal stuff? idk. bug here
+        if (!isTypingNumber) {
+            resultLabel.text = Double(resultLabel.text!)?.prettyOutput
+        }
+        isTypingNumber = true
     }
     
     
@@ -84,12 +97,7 @@ class ViewController: UIViewController {
     func numberPressed(_ sender: CustomButton) {
         guard Int(sender.content) != nil else { return }
         // Fill me in!
-        if (isTypingNumber) {
-            updateResultLabel(resultLabel.text! + sender.content)
-        } else {
-            updateResultLabel(sender.content)
-            isTypingNumber = true
-        }
+        updateResultLabel(sender.content)
     }
     
     // REQUIRED: The responder to an operator button being pressed.
@@ -105,16 +113,11 @@ class ViewController: UIViewController {
         }
         
         else if (sender.content == "+/-") {
-//          make the input positive
-            if (String(sender.content.characters.prefix(1)) == "-") {
-                updateResultLabel(String(sender.content.characters.dropFirst()))
-            } else {
-//              make the input negative
-                updateResultLabel("-" + resultLabel.text!)
-            }
+            updateResultLabel(String(Double(resultLabel.text!)! * -1))
         }
         
         else {
+//          assigning firstNumber to resultLabel.text is complicated. too many cases to account for to make sure firstNumber is being assigned to the correct number. so make a list of numbers/operations instead
             firstNumber = resultLabel.text!
             if (!operation.isEmpty) {
                 operation = sender.content
@@ -123,48 +126,12 @@ class ViewController: UIViewController {
                 operation = sender.content
             }
         }
-
     }
     
     // REQUIRED: The responder to a number or operator button being pressed.
     func buttonPressed(_ sender: CustomButton) {
        // Fill me in!
-        
-        if (sender.content == "1" ||
-            sender.content == "2" ||
-            sender.content == "3" ||
-            sender.content == "4" ||
-            sender.content == "5" ||
-            sender.content == "6" ||
-            sender.content == "7" ||
-            sender.content == "8" ||
-            sender.content == "9") {
-            return numberPressed(sender)
-        }
-        
-        else if (sender.content == ".") {
-            if (resultLabel.text?.range(of:".") == nil) {
-                updateResultLabel(resultLabel.text! + sender.content)
-            }
-        }
-        
-        else if (sender.content == "0") {
-            if (resultLabel.text != "0") {
-                if (isTypingNumber) {
-                updateResultLabel(resultLabel.text! + sender.content)
-                }
-            }
-        }
-        
-        else if (sender.content == "/" ||
-            sender.content == "*" ||
-            sender.content == "-" ||
-            sender.content == "+" ||
-            sender.content == "=" ||
-            sender.content == "C" ||
-            sender.content == "+/-") {
-            return operatorPressed(sender)
-        }
+        updateResultLabel(sender.content)
     }
     
     // IMPORTANT: Do NOT change any of the code below.
